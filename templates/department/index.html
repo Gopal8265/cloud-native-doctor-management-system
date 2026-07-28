@@ -1,0 +1,175 @@
+{% extends 'master.html' %} {% block content %}
+
+<div>
+    <h4>DEPARTMENTS</h4>
+    {% with errs = get_flashed_messages() %}  
+         {% if errs %}  
+               {% for err in errs %}  
+                <p class="text-center my-4 text-red-600 text-sm err">{{err}}</p>
+               {% endfor %}  
+         {% endif %}  
+        {% endwith %}  
+
+    <div class="flex justify-end my-8">{% if 'admin' in session['role'] %}
+        <button onclick="toggleForm('','','Add Department:','/departments/add')" class="rounded-lg border border-red-600 px-2 py-1 text-red-600 modal-open">Add</button>
+        {% endif %}
+      </div>
+
+
+      {% if deps[0] %}
+      <div class="overflow-x-scroll lg:overflow-x-hidden">
+        <table class="table-auto w-full">
+            <thead>
+                <tr class="">
+                    <th class="px-6 py-3">No.</th>
+                    <th class="px-6 py-3">Department Name</th>
+                    <th class="px-6 py-3">Doctors</th>
+                    <th class="px-6 py-3">Date Registered</th>
+                    {% if 'admin' in session['role'] %}
+                    <th class="px-6 py-3">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <body style="text-align: left;">
+                {% for i in deps: %}
+                {% if loop.index%2==0 %}
+                <tr class="bg-gray-100">
+                    <td class="px-6 py-2">{{loop.index}}</td>
+                    <td class="px-6 py-2">{{i.dep_name}}</td>
+                    <td class="px-6 py-2">{{i.doctors}}</td>
+                    <td class="px-6 py-2">{{i.dep_date}}</td>
+                    {% if 'admin' in session['role'] %}
+                    <td class="px-6 py-2">
+                      <i onclick="deleteItem('{{i.id}}')" class="popup-open cursor-pointer fa fa-trash text-gray-600 mr-2"></i>
+                      <i onclick="toggleForm('{{i.id}}','{{i.dep_name}}','Edit Department:','/departments/edit/')" 
+                         class="fa fa-pencil cursor-pointer text-gray-600 modal-open">
+                      </i>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td class="px-6 py-2">{{loop.index}}</td>
+                    <td class="px-6 py-2">{{i.dep_name}}</td>
+                    <td class="px-6 py-2">{{i.doctors}}</td>
+                    <td class="px-6 py-2">{{i.dep_date}}</td>
+                    {% if 'admin' in session['role'] %}
+                    <td class="px-6 py-2">
+                      <i onclick="deleteItem('{{i.id}}')" class="popup-open cursor-pointer fa fa-trash text-gray-600 mr-2"></i>
+                      <i onclick="toggleForm('{{i.id}}','{{i.dep_name}}','Edit Department:','/departments/edit/')" class="fa fa-pencil cursor-pointer text-gray-600 modal-open"></i>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </body>
+        </table>
+      </div>
+      {% else %}
+      <p class="w-full text-center mt-20">No Departments Registered!</p>
+      {% endif %}
+   
+
+    <!-- Modal for add -->
+    <div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+          
+          <div class="modal-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-white text-sm z-50">
+            <svg class="fill-current text-white" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+              <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+            </svg>
+            <span class="text-sm">(Esc)</span>
+          </div>
+    
+          <!-- Add margin if you want to see some of the overlay behind the modal-->
+          <div class="modal-content py-4 text-left px-6">
+            <!--Title-->
+            <div class="flex justify-between items-center pb-3">
+              <p class="text-2xl font-bold modal-title">Add Department</p>
+              <div class="modal-close cursor-pointer z-50">
+                <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                </svg>
+              </div>
+            </div>
+    
+            <form action="departments/add" method="post" class="modal-form">
+                    <!--Body-->
+                <div class="flex flex-col justify-center">
+                    <label for="doctors">Department Name:</label>
+                    <input type="text" name="department" placeholder="Name" required class="border input-name border-gray-300 mt-1 px-2 py-1 rounded">
+                </div>
+        
+                <!--Footer-->
+                <div class="flex justify-end mt-5">
+                <button class="px-4 rounded-lg bg-red-600 px-2 py-1 mr-2 text-white" type="submit">Save</button>
+                <button type="button" class="modal-close p-2 text-grey-500">Close</button>
+                </div>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+
+
+    <!-- Modal for delete -->
+    <div class="popup opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+      <div class="popup-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+      
+      <div class="popup-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        
+        <div class="popup-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-white text-sm z-50">
+          <svg class="fill-current text-white" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+          </svg>
+          <span class="text-sm">(Esc)</span>
+        </div>
+  
+        <!-- Add margin if you want to see some of the overlay behind the popup-->
+        <div class="popup-content py-4 text-left px-6">
+          <!--Title-->
+          <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold popup-title">Confirm:</p>
+            <div class="popup-close cursor-pointer z-50">
+              <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+              </svg>
+            </div>
+          </div>
+              Department doctors also will be deleted!
+              <!--Footer-->
+              <div class="flex justify-end mt-5">
+              <a href="/departments/delete/1" class="deleteLink pt-2 px-4 rounded-lg bg-red-600 px-2 py-1 mr-2 text-white" type="submit">Delete</a>
+              <button type="button" class="popup-close p-2 text-grey-500">Close</button>
+              </div>
+          
+        </div>
+      </div>
+    </div>
+
+</div>
+
+</div>
+
+<script>
+  const toggleForm = (id,name,formTitle,url) => {
+        const modalTitle = document.querySelector('.modal-title')
+        const modalForm = document.querySelector('.modal-form')
+        const inputName = document.querySelector('.input-name')
+        modalTitle.innerHTML = formTitle
+        modalForm.action = url+id
+        inputName.value = name
+        if (id==''){
+              modalForm.reset()
+          }
+      }
+
+      const deleteItem = (id) => {
+        const deleteLink = document.querySelector('.deleteLink')
+        deleteLink.href = '/departments/delete/'+id
+    }
+</script>
+
+{% endblock %}
