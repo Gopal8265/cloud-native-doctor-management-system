@@ -19,7 +19,6 @@ pipeline {
             steps {
                 sh 'docker --version'
                 sh 'kubectl version --client'
-                sh 'minikube version'
             }
         }
 
