@@ -1,5 +1,6 @@
 import psycopg2, psycopg2.extras
 from datetime import datetime
+import os
 
 class DB:
     
@@ -8,11 +9,11 @@ class DB:
         """
                 
         self.params = {
-            "database": "hospital_db",
-            "user": "ubuntu",
-            "password": "1234",
-            "host": "127.0.0.1",
-            "port": "5432"
+            "database": os.getenv("DB_NAME", "hospital_db"),
+            "user": os.getenv("DB_USER", "gopal"),
+            "password": os.getenv("DB_PASSWORD", ""),
+            "host": os.getenv("DB_HOST", "127.0.0.1"),
+            "port": os.getenv("DB_PORT", "5432")
         }
         self.con = psycopg2.connect(**self.params)
         self.cursor = self.con.cursor(cursor_factory = psycopg2.extras.DictCursor)
